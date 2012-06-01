@@ -3,10 +3,14 @@ import os.path
 import re
 from setuptools import setup
 
-import myapp as target_package  # change myapp to your application package
-
 
 root = os.path.dirname(os.path.abspath(__file__))
+package_name = 'myapp'
+try:
+    p = __import__(package_name)
+    package_version = p.__version__
+except:
+    package_version = 'UNKNOWN'
 
 
 def read_requirements_file(rel_name):
@@ -28,7 +32,7 @@ def read_requirements_file(rel_name):
 installation_requirements = read_requirements_file('requirements.txt')
 testing_requirements = read_requirements_file('test-requirements.txt')
 
-readme = target_package.__doc__
+readme = ''
 if not readme:
     for doc_name in ['README', 'readme.txt', 'readme.md', 'readme.rst']:
         if os.path.exists(os.path.join(root, doc_name)):
@@ -38,15 +42,15 @@ if not readme:
             break
 
 setup(
-    name=target_package.__name__,
-    version=target_package.__version__,
+    name=package_name,
+    version=package_version,
     #  url='<Your Repo/Project URL Here>',
     license='BSD',
     #  author='<Your Name Here>',
     #  author_email='<Your Email Here>',
     #  description='<Description of your package here>',
     long_description=readme,
-    packages=[target_package.__name__],
+    packages=[package_name],
     zip_safe=False,
     platforms='any',
     install_requires=installation_requirements,
