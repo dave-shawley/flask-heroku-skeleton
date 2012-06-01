@@ -1,0 +1,61 @@
+import myapp
+
+import testing
+
+
+class ApplicationDefaultTest(testing.TestCase):
+    """
+    Validate the application default configuration.
+    """
+    def test_host_defaults_to_all(self):
+        app = myapp.create_application()
+        self.assertEqual(app.config['HOST'], '0.0.0.0')
+
+    def test_port_defaults_to_5000(self):
+        app = myapp.create_application()
+        self.assertEqual(app.config['PORT'], 5000)
+
+    def test_debug_defaults_to_false(self):
+        app = myapp.create_application()
+        self.assertEqual(app.config['DEBUG'], False)
+        self.assertEqual(app.debug, False)
+
+    def test_secret_key_is_generated(self):
+        app = myapp.create_application()
+        key = app.config['SECRET_KEY']
+        self.assertIsNotNone(key)
+        self.assertEqual(len(key), 24)
+
+
+class ApplicationRunTests(testing.TestCase):
+    """
+    Verify aspects of creating and running the application.
+    """
+    @testing.patch('myapp.flaskapp.Application')
+    def test_create_application_curries_arguments(self, app_class):
+        myapp.create_application()
+        app_class.assert_called_with()
+        myapp.create_application(1, 2, 3)
+        app_class.assert_called_with(1,2,3)
+        myapp.create_application(1, 2, three=3)
+        app_class.assert_called_with(1, 2, three=3)
+
+    @testing.patch('flask.Flask.run')
+    def test_run_curries_arguments(self, flask_run):
+        inst = myapp.create_application()
+        inst.run()
+        flask_run.assert_called_with(inst, host='0.0.0.0', port=5000,
+                debug=False)
+        inst.run(42, foo='bar')
+        flask_run.assert_called_with(inst, 42, host='0.0.0.0', port=5000,
+                debug=False, foo='bar')
+
+    @testing.patch('flask.Flask.run')
+    def test_run_keywords_override_defaults(self, flask_run):
+        inst = myapp.create_application()
+        inst.run(debug=True, host='127.0.0.1', port=6543)
+        flask_run.assert_called_with(inst, host='127.0.0.1', port=6543,
+                debug=True)
+
+
+
