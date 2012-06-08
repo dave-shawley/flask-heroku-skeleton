@@ -4,9 +4,7 @@ import testing
 
 
 class ApplicationDefaultTest(testing.TestCase):
-    """
-    Validate the application default configuration.
-    """
+    """Validate the application default configuration."""
     def test_host_defaults_to_all(self):
         app = myapp.create_application()
         self.assertEqual(app.config['HOST'], '0.0.0.0')
@@ -28,9 +26,7 @@ class ApplicationDefaultTest(testing.TestCase):
 
 
 class ApplicationRunTests(testing.TestCase):
-    """
-    Verify aspects of creating and running the application.
-    """
+    """Verify aspects of creating and running the application."""
     @testing.patch('myapp.flaskapp.Application')
     def test_create_application_curries_arguments(self, app_class):
         myapp.create_application()
@@ -58,4 +54,12 @@ class ApplicationRunTests(testing.TestCase):
                 debug=True)
 
 
+class ConfigFileTests(testing.TestCase):
+    """I test application configuration file processing."""
+    @testing.patch('flask.Config.from_envvar')
+    def test_config_file_from_envvar_is_read(self, from_envvar):
+        inst = myapp.create_application()
+        from_envvar.assert_called_with('APP_CONFIG', silent=True)
+        inst = myapp.create_application(config_envvar='CUSTOM_NAME')
+        from_envvar.assert_called_with('CUSTOM_NAME', silent=True)
 

@@ -23,12 +23,20 @@ def save_and_restore_environ(class_):
 #  Patch unittest.TestCase as necessary
 if (sys.version_info[0], sys.version_info[1]) < (2, 7):
     class TestCase(unittest.TestCase):
+        def setUp(self):
+            pass
+        def tearDown(self):
+            pass
         def assertIsNotNone(self, obj, msg=None):
             self.failIf(obj is None, msg or 'value should not be None')
         def assertIsNone(self, obj, msg=None):
             self.failIf(obj is not None, msg or 'value should be None')
 else:
-    TestCase = unittest.TestCase
+    class TestCase(unittest.TestCase):
+        def setUp(self):
+            pass
+        def tearDown(self):
+            pass
 
 #  If we cannot import mock, then cause any tests using patching to fail
 #  somewhat gracefully.
